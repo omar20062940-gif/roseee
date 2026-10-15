@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TO MY ROSE ♥️</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #050508;
+            color: #fff;
+            position: fixed; /* يمنع السحب والمشاكل على الموبايل */
+        }
+
+        /* الكانفاس الخاص بالمؤثرات */
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* الواجهة الزجاجية الأنيقة */
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            width: 88%;
+            max-width: 450px;
+            padding: 30px 22px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .flag-tag {
+            display: inline-block;
+            padding: 5px 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e0e0e0;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #ff758c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        p.description {
+            font-size: 0.95rem;
+            color: #a0a0ab;
+            line-height: 1.7;
+            margin-bottom: 24px;
+            font-weight: 300;
+        }
+
+        /* زر المفاجأة */
+        .glow-btn {
+            position: relative;
+            padding: 12px 32px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #fff;
+            background: linear-gradient(135deg, #e17055, #d63031);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(214, 48, 49, 0.4);
+            overflow: hidden;
+            width: 100%;
+            max-width: 260px;
+        }
+
+        .glow-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* الرسالة السرية الهادئة */
+        .secret-card {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-top: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0);
+        }
+
+        .secret-card.show {
+            max-height: 300px;
+            opacity: 1;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .quote {
+            font-size: 1rem;
+            color: #ff758c;
+            font-weight: 500;
+            line-height: 1.7;
+        }
+
+        /* تحسين التجاوب للشاشات الصغيرة جداً */
+        @media (max-height: 650px) {
+            .container {
+                padding: 20px 18px;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+            p.description {
+                margin-bottom: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="container">
+        <div class="flag-tag">O ♥️ N</div>
+        <h1> من الذيب لاحلى ذيبه </h1>
+        <p class="description">
+            الى اللتي تشرق الشمس من اجلها
+        </p>
+
+        <button class="glow-btn" id="trigger">اضغطي هنا لتكتشفي السر</button>
+
+        <div class="secret-card" id="secret">
+            <p class="quote">
+                "بين دجلة والنيل حكاية لا تفهمها إلا القلوب.. أشتهي كل يوم أن أُخبركِ أنكِ أجمل ما حدث لي."
+                ( ♥️ هفضل احبك ي وردتي)
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+
+        // دعم الماوس واللمس للهاتف
+        function handlePointerMove(e) {
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            const y = e.touches ? e.touches[0].clientY : e.clientY;
+            createExplosion(x, y, 2);
+        }
+
+        window.addEventListener('mousemove', handlePointerMove);
+        window.addEventListener('touchmove', handlePointerMove, { passive: true });
+
+        class Particle {
+            constructor(x, y, isBurst = false) {
+                this.x = x || Math.random() * width;
+                this.y = y || Math.random() * height;
+                this.size = Math.random() * 2.5 + 1;
+                this.speedX = isBurst ? (Math.random() - 0.5) * 6 : (Math.random() - 0.5) * 1.2;
+                this.speedY = isBurst ? (Math.random() - 0.5) * 6 : (Math.random() - 0.5) * 1.2;
+                this.color = `hsl(${Math.random() * 40 + 340}, 80%, 65%)`;
+                this.opacity = 1;
+                this.isBurst = isBurst;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.isBurst) {
+                    this.opacity -= 0.018;
+                } else {
+                    if (this.x < 0 || this.x > width) this.speedX *= -1;
+                    if (this.y < 0 || this.y > height) this.speedY *= -1;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // عدد جزيئات خفيف ومناسب للهواتف لضمان سلاسة الأداء
+        const particleCount = window.innerWidth < 600 ? 50 : 80;
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function createExplosion(x, y, count = 30) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y, true));
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(5, 5, 8, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+
+                if (particles[i].opacity <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // التفاعل مع الزر (دعم الماوس واللمس)
+        const btn = document.getElementById('trigger');
+        const secret = document.getElementById('secret');
+
+        function handleTrigger(e) {
+            e.preventDefault();
+            const rect = btn.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            // انفجار ضوئي عند الضغط
+            createExplosion(x, y, 90);
+
+            // إظهار النص
+            secret.classList.toggle('show');
+        }
+
+        btn.addEventListener('click', handleTrigger);
+    </script>
+</body>
+</html>
